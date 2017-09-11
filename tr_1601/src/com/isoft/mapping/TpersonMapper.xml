@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.isoft.dao.TpersonDao" >
+  <resultMap id="BaseResultMap" type="com.isoft.model.Tperson" >
+    <id column="t_preson_id" property="tPresonId" jdbcType="VARCHAR" />
+    <result column="t_user_id" property="tUserId" jdbcType="VARCHAR" />
+    <result column="t_dic_id" property="tDicId" jdbcType="VARCHAR" />
+    <result column="t_gender" property="tGender" jdbcType="VARCHAR" />
+    <result column="t_mobile" property="tMobile" jdbcType="VARCHAR" />
+    <result column="t_email" property="tEmail" jdbcType="VARCHAR" />
+    <result column="t_cname" property="tCname" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <resultMap id="personHeadIcon" type="com.isoft.model.VOPersonAtt" >
+    <id column="t_preson_id" property="tPresonId" jdbcType="VARCHAR" />
+    <result column="t_user_id" property="tUserId" jdbcType="VARCHAR" />
+    <result column="t_dic_id" property="tDicId" jdbcType="VARCHAR" />
+    <result column="t_gender" property="tGender" jdbcType="VARCHAR" />
+    <result column="t_mobile" property="tMobile" jdbcType="VARCHAR" />
+    <result column="t_email" property="tEmail" jdbcType="VARCHAR" />
+    <result column="t_cname" property="tCname" jdbcType="VARCHAR" />
+     <result column="t_attid" property="tAttid" jdbcType="VARCHAR" />
+    <result column="t_id" property="tId" jdbcType="VARCHAR" />
+    <result column="t_attname" property="tAttname" jdbcType="VARCHAR" />
+    <result column="t_type" property="tType" jdbcType="VARCHAR" />
+    <result column="t_atturl" property="tAtturl" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  
+ 
+  <sql id="Base_Column_List" >
+    t_preson_id, t_user_id, t_dic_id, t_gender, t_mobile, t_email, t_cname
+  </sql>
+  
+  <select id="selectByuserId" resultMap="personHeadIcon" parameterType="java.lang.String">
+  
+  select a.*,b.* FROM t_person a LEFT JOIN t_attenchment b ON a.t_preson_id=b.t_id WHERE a.t_user_id= #{tUserId,jdbcType=VARCHAR}
+  </select>
+  
+  
+  <!-- 通过useri找到person对象 -->
+  <select id="selectByUserIda" resultMap="BaseResultMap" parameterType="java.lang.String" >
+  select 
+  <include refid="Base_Column_List" />
+   from t_person
+    where t_user_id = #{tUserId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_person
+    where t_preson_id = #{tPresonId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_person
+    where t_preson_id = #{tPresonId,jdbcType=VARCHAR}
+  </delete>
+  <!-- 通过userid删除数据 -->
+  <delete id="DelFromUseId" parameterType="java.lang.String">
+  DELETE FROM t_person WHERE t_person.t_user_id=#{tUserId,jdbcType=VARCHAR};
+  </delete>
+  <insert id="insert" parameterType="com.isoft.model.Tperson" >
+    insert into t_person (t_preson_id, t_user_id, t_dic_id, 
+      t_gender, t_mobile, t_email, 
+      t_cname)
+    values (#{tPresonId,jdbcType=VARCHAR}, #{tUserId,jdbcType=VARCHAR}, #{tDicId,jdbcType=VARCHAR}, 
+      #{tGender,jdbcType=VARCHAR}, #{tMobile,jdbcType=VARCHAR}, #{tEmail,jdbcType=VARCHAR}, 
+      #{tCname,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.isoft.model.Tperson" >
+    insert into t_person
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tPresonId != null" >
+        t_preson_id,
+      </if>
+      <if test="tUserId != null" >
+        t_user_id,
+      </if>
+      <if test="tDicId != null" >
+        t_dic_id,
+      </if>
+      <if test="tGender != null" >
+        t_gender,
+      </if>
+      <if test="tMobile != null" >
+        t_mobile,
+      </if>
+      <if test="tEmail != null" >
+        t_email,
+      </if>
+      <if test="tCname != null" >
+        t_cname,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tPresonId != null" >
+        #{tPresonId,jdbcType=VARCHAR},
+      </if>
+      <if test="tUserId != null" >
+        #{tUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="tDicId != null" >
+        #{tDicId,jdbcType=VARCHAR},
+      </if>
+      <if test="tGender != null" >
+        #{tGender,jdbcType=VARCHAR},
+      </if>
+      <if test="tMobile != null" >
+        #{tMobile,jdbcType=VARCHAR},
+      </if>
+      <if test="tEmail != null" >
+        #{tEmail,jdbcType=VARCHAR},
+      </if>
+      <if test="tCname != null" >
+        #{tCname,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.isoft.model.Tperson" >
+    update t_person
+    <set >
+      <if test="tUserId != null" >
+        t_user_id = #{tUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="tDicId != null" >
+        t_dic_id = #{tDicId,jdbcType=VARCHAR},
+      </if>
+      <if test="tGender != null" >
+        t_gender = #{tGender,jdbcType=VARCHAR},
+      </if>
+      <if test="tMobile != null" >
+        t_mobile = #{tMobile,jdbcType=VARCHAR},
+      </if>
+      <if test="tEmail != null" >
+        t_email = #{tEmail,jdbcType=VARCHAR},
+      </if>
+      <if test="tCname != null" >
+        t_cname = #{tCname,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where t_preson_id = #{tPresonId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.isoft.model.Tperson" >
+    update t_person
+    set t_user_id = #{tUserId,jdbcType=VARCHAR},
+      t_dic_id = #{tDicId,jdbcType=VARCHAR},
+      t_gender = #{tGender,jdbcType=VARCHAR},
+      t_mobile = #{tMobile,jdbcType=VARCHAR},
+      t_email = #{tEmail,jdbcType=VARCHAR},
+      t_cname = #{tCname,jdbcType=VARCHAR}
+    where t_preson_id = #{tPresonId,jdbcType=VARCHAR}
+  </update>
+  <update id="uptDicIdeByuserid" parameterType="com.isoft.model.Tperson" >
+    update t_person
+    set
+     
+      t_dic_id = #{tDicId,jdbcType=VARCHAR}
+ 
+    where t_user_id = #{tUserId,jdbcType=VARCHAR}
+  </update>
+</mapper>

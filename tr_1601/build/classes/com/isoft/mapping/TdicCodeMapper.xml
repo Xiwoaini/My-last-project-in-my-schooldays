@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.isoft.dao.TdicCodeDao" >
+  <resultMap id="BaseResultMap" type="com.isoft.model.TdicCode" >
+    <id column="t_dic_id" property="tDicId" jdbcType="VARCHAR" />
+    <result column="t_dic_code" property="tDicCode" jdbcType="VARCHAR" />
+    <result column="t_name" property="tName" jdbcType="VARCHAR" />
+    <result column="t_type" property="tType" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    t_dic_id, t_dic_code, t_name, t_type
+  </sql>
+  <!-- 自己写的 -->
+  
+  <!-- 查询数据字典的数据类型  -->
+  <select id="getDicType" resultMap="BaseResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_dic_code 
+    <!-- group by t_type; -->
+  </select>
+  
+  <!-- 当页面加载时查询获取数据字典的所有数据 -->
+  <!-- 根据数据类型和数据名称查询获取数据字典的所有数据 -->
+  <select id="getAllDicCode" resultMap="BaseResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_dic_code
+    <choose>
+    	<when test="(tName == '' and tType == '')">
+    	
+    	</when>
+    	<when test="(tName != '' and tType != '')">
+    		where t_name like concat(concat('%',#{tName,jdbcType=VARCHAR}),'%') and t_type  like concat(concat('%',#{tType,jdbcType=VARCHAR}),'%')
+    	</when>
+    	<when test="(tName != '')">
+    		where t_name like concat(concat('%',#{tName,jdbcType=VARCHAR}),'%')
+    	</when>
+    	<when test="(tType != '')">
+    		where t_type  like concat(concat('%',#{tType,jdbcType=VARCHAR}),'%')
+    	</when>
+    </choose>
+   limit #{nextStartPage,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+  </select>
+  
+ 
+  <!-- 查询总共有多少条数据  -->
+  <select id="selectCount" resultType="String" >
+    select count(*) from t_dic_code
+    <choose>
+    	<when test="(tName != '' and tType != '')">
+    		where t_name like concat(concat('%',#{tName,jdbcType=VARCHAR}),'%') and t_type  like concat(concat('%',#{tType,jdbcType=VARCHAR}),'%')
+    	</when>
+    	<when test="(tName != '')">
+    		where t_name like concat(concat('%',#{tName,jdbcType=VARCHAR}),'%')
+    	</when>
+    	<when test="(tType != '')">
+    		where t_type  like concat(concat('%',#{tType,jdbcType=VARCHAR}),'%')
+    	</when>
+    </choose>
+  </select>
+  
+  
+  <!-- 添加数据字典 -->
+  <insert id="addTDicCode" parameterType="com.isoft.model.TdicCode" >
+    insert into t_dic_code
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tDicId != null" >
+        t_dic_id,
+      </if>
+      <if test="tDicCode != null" >
+        t_dic_code,
+      </if>
+      <if test="tName != null" >
+        t_name,
+      </if>
+      <if test="tType != null" >
+        t_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tDicId != null" >
+        #{tDicId,jdbcType=VARCHAR},
+      </if>
+      <if test="tDicCode != null" >
+        #{tDicCode,jdbcType=VARCHAR},
+      </if>
+      <if test="tName != null" >
+        #{tName,jdbcType=VARCHAR},
+      </if>
+      <if test="tType != null" >
+        #{tType,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <!-- 查询数据字典类型2 -->
+  
+  <select id="getDicType2" resultMap="BaseResultMap" parameterType="com.isoft.model.TdicCode">
+  select 
+  <include refid="Base_Column_List" />
+  from t_dic_code c
+  <choose>
+  <when test="tType !=null and tType !='' and tType != 'mySelAll'">
+  where c.t_type=#{tType,jdbcType=VARCHAR}
+  </when>
+  </choose>
+  </select>
+  
+  
+  <!-- 查询数据典型3 -->
+  <select id="getDicType3" resultMap="BaseResultMap" parameterType="com.isoft.model.TdicCode">
+   SELECT DISTINCT d.t_dic_id,d.t_name FROM t_dic_code d LEFT JOIN t_person p ON d.t_dic_id=p.t_dic_id
+  <choose>
+  <when test="tType !=null and tType !='' and tType != 'mySelAll'">
+  where d.t_type=#{tType,jdbcType=VARCHAR}
+  </when>
+  </choose>
+  </select>
+  
+  
+  
+  
+  
+  
+  <!-- 自动生成的 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_dic_code
+    where t_dic_id = #{tDicId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_dic_code
+    where t_dic_id = #{tDicId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.isoft.model.TdicCode" >
+    insert into t_dic_code (t_dic_id, t_dic_code, t_name, 
+      t_type)
+    values (#{tDicId,jdbcType=VARCHAR}, #{tDicCode,jdbcType=VARCHAR}, #{tName,jdbcType=VARCHAR}, 
+      #{tType,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.isoft.model.TdicCode" >
+    insert into t_dic_code
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tDicId != null" >
+        t_dic_id,
+      </if>
+      <if test="tDicCode != null" >
+        t_dic_code,
+      </if>
+      <if test="tName != null" >
+        t_name,
+      </if>
+      <if test="tType != null" >
+        t_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tDicId != null" >
+        #{tDicId,jdbcType=VARCHAR},
+      </if>
+      <if test="tDicCode != null" >
+        #{tDicCode,jdbcType=VARCHAR},
+      </if>
+      <if test="tName != null" >
+        #{tName,jdbcType=VARCHAR},
+      </if>
+      <if test="tType != null" >
+        #{tType,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.isoft.model.TdicCode" >
+    update t_dic_code
+    <set >
+      <if test="tDicCode != null" >
+        t_dic_code = #{tDicCode,jdbcType=VARCHAR},
+      </if>
+      <if test="tName != null" >
+        t_name = #{tName,jdbcType=VARCHAR},
+      </if>
+      <if test="tType != null" >
+        t_type = #{tType,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where t_dic_id = #{tDicId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.isoft.model.TdicCode" >
+    update t_dic_code
+    set t_dic_code = #{tDicCode,jdbcType=VARCHAR},
+      t_name = #{tName,jdbcType=VARCHAR},
+      t_type = #{tType,jdbcType=VARCHAR}
+    where t_dic_id = #{tDicId,jdbcType=VARCHAR}
+  </update>
+</mapper>

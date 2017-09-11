@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.isoft.dao.DeviceDAO" >
+
+<!-- 用户映射表 -->
+  <resultMap id="BaseResultMap" type="com.isoft.model.Device" >
+    <id column="t_equip_id" property="t_equip_id" jdbcType="VARCHAR" />
+    <result column="t_agency_id" property="t_agency_id" jdbcType="VARCHAR" />
+    <result column="t_dic_code" property="t_dic_code" jdbcType="VARCHAR" />
+    <result column="t_device_name" property="t_device_name" jdbcType="VARCHAR" />
+    <result column="t_dtype" property="t_dtype" jdbcType="VARCHAR" />
+    <result column="t_factory" property="t_factory" jdbcType="VARCHAR" />
+    <result column="t_dnumber" property="t_dnumber" jdbcType="VARCHAR" />
+    <result column="t_buy_date" property="t_buy_date" jdbcType="VARCHAR" />
+    <result column="t_check_date" property="t_check_date" jdbcType="VARCHAR" />
+      <result column="t_sid" property="t_sid" jdbcType="VARCHAR" />
+    <result column="t_check_circle" property="t_check_circle" jdbcType="VARCHAR" />
+    <result column="t_left_day" property="t_left_day" jdbcType="VARCHAR" />
+   <association property="tdiccode" javaType="com.isoft.model.TdicCode">  
+        <result column="t_name" property="tName"/>  
+ </association>   
+  </resultMap>
+    <resultMap id="CaseResultMap" type="com.isoft.model.Tagency" >
+    <id column="t_agency_id" property="tAgencyId" jdbcType="VARCHAR" />
+    <result column="t_license" property="tLicense" jdbcType="VARCHAR" />
+    <result column="t_permit_no" property="tPermitNo" jdbcType="VARCHAR" />
+    <result column="t_agency_name" property="tAgencyName" jdbcType="VARCHAR" />
+  </resultMap>
+   <resultMap id="DaseResultMap" type="com.isoft.model.TdicCode" >
+    <id column="t_dic_id" property="tDicId" jdbcType="VARCHAR" />
+    <result column="t_dic_code" property="tDicCode" jdbcType="VARCHAR" />
+    <result column="t_name" property="tName" jdbcType="VARCHAR" />
+    <result column="t_type" property="tType" jdbcType="VARCHAR" />
+  </resultMap>
+   
+   <resultMap id="EaseResultMap" type="com.isoft.model.Tattenchment" >
+    <id column="t_attid" property="tAttid" jdbcType="VARCHAR" />
+    <result column="t_id" property="tId" jdbcType="VARCHAR" />
+    <result column="t_attname" property="tAttname" jdbcType="VARCHAR" />
+    <result column="t_type" property="tType" jdbcType="VARCHAR" />
+        <result column="t_atturl" property="tAtturl" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="sql_column">
+  t_equip_id,t_agency_id,t_dic_code,t_device_name,t_dtype,t_factory,t_dnumber,
+  t_buy_date,t_check_date,t_sid,t_check_circle,t_left_day
+  </sql>
+  <sql id="Base_Column_List" >
+    t_agency_id, t_license, t_permit_no, t_agency_name
+  </sql>
+ 
+ 
+ <select id="selectDeviceAll" resultMap="BaseResultMap" parameterType="java.lang.String">
+SELECT d.*,a.t_agency_name from t_device d LEFT JOIN t_agency a on d.t_agency_id=a.t_agency_id
+order by CONVERT(d.t_left_day,SIGNED)
+ limit #{startPos},#{pageSize}
+ </select>
+ <!-- 模糊查询 -->
+  <select  id="selectDeviceLike" resultMap="BaseResultMap" parameterType="java.lang.String">
+ SELECT d.*,a.t_name from t_device d LEFT JOIN
+ t_dic_code a on d.t_dic_code=a.t_dic_code
+where d.t_device_name like concat
+(concat('%',#{dname}),'%') and a.t_name
+ like concat(concat('%',#{tdiccode_name}),'%') 
+ order by  CONVERT(d.t_left_day,SIGNED) 
+   limit #{startPos},#{pageSize}
+
+  </select>
+  <!-- 得到总数 -->
+  <select id="getCounts" resultType="java.lang.Integer" >
+  SELECT count(0) from t_device d LEFT JOIN t_agency a on d.t_agency_id=a.t_agency_id
+  </select>
+  <!-- 得到模糊查询总数 -->
+   <select id="getLikeCounts" resultType="java.lang.String" parameterType="java.lang.String" >
+ SELECT count(0) from t_device d LEFT JOIN t_dic_code a on d.t_dic_code=a.t_dic_code
+where d.t_device_name like
+ concat(concat('%',#{dname}),'%') 
+ and a.t_name like concat(concat('%',#{tdiccode_name}),'%') 
+  </select>
+  <!-- 设备详情 -->
+  <select id="selectDeviceDetail" resultMap="CaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_agency
+    where t_agency_id = #{t_agency_id,jdbcType=VARCHAR}
+  </select>
+  <!-- 查询所有供应商 -->
+  <select id="selectTagencyAll" resultType="java.lang.String">
+ select a.t_agency_name from t_agency a
+  </select>
+  <!-- 根据供应商的名称查询具体的id -->
+  <select id="selectIdByTagencyName" resultType="java.lang.String" parameterType="java.lang.String">
+  select a.t_agency_id  from t_agency a where a.t_agency_name=#{t_agency_name}
+  </select>
+  
+  <!-- 增加 -->
+ <insert id="addDevice" parameterType="com.isoft.model.Device" >
+  insert into t_device
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="t_equip_id != null" >
+        t_equip_id,
+      </if>
+      <if test="t_agency_id != null" >
+        t_agency_id,
+      </if>
+      <if test="t_dic_code != null" >
+        t_dic_code,
+      </if>
+      <if test="t_device_name != null" >
+        t_device_name,
+      </if>
+      <if test="t_dtype != null" >
+        t_dtype,
+      </if>
+      <if test="t_factory != null" >
+        t_factory,
+      </if>
+      <if test="t_dnumber != null" >
+        t_dnumber,
+      </if>
+      <if test="t_buy_date != null" >
+        t_buy_date,
+      </if>
+      <if test="t_check_date != null" >
+        t_check_date,
+      </if>
+      <if test="t_sid != null" >
+        t_sid,
+      </if>
+      <if test="t_check_circle != null" >
+        t_check_circle,
+      </if>
+      <if test="t_left_day != null" >
+       t_left_day,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+     <if test="t_equip_id != null" >
+        #{t_equip_id},
+      </if>
+      <if test="t_agency_id != null" >
+          #{t_agency_id},
+      </if>
+      <if test="t_dic_code != null" >
+         #{t_dic_code},
+      </if>
+      <if test="t_device_name != null" >
+  #{t_device_name},
+      </if>
+      <if test="t_dtype != null" >
+        #{t_dtype},
+      </if>
+      <if test="t_factory != null" >
+    #{t_factory},
+      </if>
+      <if test="t_dnumber != null" >
+        #{t_dnumber},
+      </if>
+      <if test="t_buy_date != null" >
+      #{t_buy_date},
+      </if>
+      <if test="t_check_date != null" >
+        #{t_check_date},
+      </if>
+      <if test="t_sid != null" >
+       #{t_sid},
+      </if>
+      <if test="t_check_circle != null" >
+          #{t_check_circle},
+      </if>
+      <if test="t_left_day != null" >
+        #{t_left_day},
+      </if>
+    </trim>
+ 
+ 
+ 
+ </insert>
+  <delete id="deleteDevice"  >
+  delete from t_device where t_equip_id=#{did}
+  </delete>
+  <update id="updateDevice" parameterType="com.isoft.model.Device" >
+   update t_device
+    <set >
+      <if test="t_agency_id != null" >
+        t_agency_id=#{t_agency_id},
+      </if>
+      <if test="t_dic_code != null" >
+        t_dic_code=#{t_dic_code},
+      </if>
+      <if test="t_device_name != null" >
+        t_device_name=#{t_device_name},
+      </if>
+      <if test="t_dtype != null" >
+        t_dtype=#{t_dtype},
+      </if>
+      <if test="t_factory != null" >
+        t_factory=#{t_factory},
+      </if>
+      <if test="t_dnumber != null" >
+        t_dnumber=#{t_dnumber},
+      </if>
+      <if test="t_buy_date != null" >
+        t_buy_date=#{t_buy_date},
+      </if>
+      <if test="t_check_date != null" >
+        t_check_date=#{t_check_date},
+      </if>
+      <if test="t_sid != null" >
+        t_sid=#{t_sid},
+      </if>
+      <if test="t_check_circle != null" >
+        t_check_circle=#{t_check_circle},
+      </if>
+      <if test="t_left_day != null" >
+       t_left_day=#{t_left_day},
+      </if>
+    </set>
+    
+    where t_equip_id = #{t_equip_id,jdbcType=VARCHAR}
+  </update>
+  <!-- 修改前查询 -->
+  <select id="selectDevice" resultMap="BaseResultMap" parameterType="java.lang.String">
+  select 
+    <include refid="sql_column"  />
+   from t_device where t_device.t_equip_id=#{t_equip_id}
+  </select>
+
+<!--查询所有科室  -->
+
+ <select id="selectTdicCodeAll" resultMap="DaseResultMap" >
+  select * from
+  t_dic_code d where d.t_type='科室'
+  </select>
+  <!--设备检修查看检修人通过科室代码  -->
+  <select id="selectCheckPerson" resultType="java.lang.String" parameterType="java.lang.String">
+ select p.t_cname from t_person p left JOIN 
+t_dic_code d on p.t_dic_id=d.t_dic_id where p.t_dic_id=#{t_name}
+  
+  </select>
+    <!--通过科室代码找科室ID  -->
+  <select id="selectCheckDicId" resultType="java.lang.String" parameterType="java.lang.String">
+ select d.t_dic_id from t_dic_code d where d.t_dic_code=#{dic_id}
+ 
+  </select>
+  <!--通过检修人和科室id查询检修人id -->
+  <select id="selectCheckPersonByDicName" parameterType="java.lang.String" resultType="java.lang.String">
+   select p.t_preson_id from t_person p 
+where p.t_dic_id=#{t_dic_code_check} and p.t_cname=#{tCname}
+  </select>
+  <!-- 通过科室代码查找科室名字 -->
+<select id="selectDicNameById" parameterType="java.lang.String" resultType="java.lang.String">
+  select 
+    dc.t_name
+   from t_dic_code dc where dc.t_dic_code=#{dic_code}
+</select>
+  <!-- 通过科室名字查找科室代码 -->
+<select id="selectDicCodeByDicName" parameterType="java.lang.String" resultType="java.lang.String">
+  select 
+    dc.t_dic_code
+   from t_dic_code dc where dc.t_name=#{dic_name}
+</select>
+<!-- 导出excel -->
+<select id="excelExport" resultMap="BaseResultMap">
+SELECT d.*,a.t_agency_name from t_device d LEFT JOIN t_agency a on d.t_agency_id=a.t_agency_id
+order by CONVERT(d.t_dnumber,SIGNED)
+ 
+</select>
+<!-- 更新时间 -->
+<update id="updateDeviceLeftDay">
+ update t_device
+set
+       t_left_day=#{t_left_day,jdbcType=VARCHAR}
+where t_equip_id=#{t_equip_id,jdbcType=VARCHAR}
+
+</update>
+<select id="getImgSrc" resultMap="EaseResultMap">
+SELECT *
+from t_attenchment where t_attid=#{t_equip_id,jdbcType=VARCHAR}
+</select>
+  
+  </mapper>
